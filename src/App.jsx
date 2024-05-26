@@ -1,43 +1,55 @@
-import { Table } from "flowbite-react";
-import React from "react";
-import { useState } from "react";
-import { useEffect } from "react";
+import { info } from "autoprefixer";
+import React, { useRef, useState } from "react";
 
 const App = () => {
-  const [infos, setInfos] = useState([]);
+  const ref = useRef();
+  const [error, setError] = useState(false);
+  const [task, setTask] = useState(null);
 
-  const fetchFunction = async () => {
-    const res = await fetch("https://jsonplaceholder.typicode.com/todos ");
-    const data = await res.json();
-
-    setInfos(data);
+  const fetchData = async (id) => {
+    const res = await fetch(`https://jsonplaceholder.typicode.com/todos/${id}`);
+    const info = await res.json();
+    setError(false);
+    setTask(info);
   };
 
-  // console.log(value)
-  useEffect((_) => {
-    fetchFunction();
-  }, []);
-
+  const handleForm = async (e) => {
+    e.preventDefault();
+    if (ref.current.value < 1) {
+      setError(true);
+      ref.current.value = null;
+    } else {
+      fetchData(ref.current.value);
+      ref.current.value = null;
+    }
+  };
+  
   return (
     <section className="m-10">
-      <table className="border-collapse border">
-        <thead>
-          <tr>
-            <th>Id</th>
-            <th>Title</th>
-            <th>Completed</th>
-          </tr>
-        </thead>
-        <tbody>
-          {infos.map((info) => (
-            <tr key={info.id } className="even:bg-slate-200 ">
-              <td className="">{info.id}</td>
-              <td className="">{info.title}</td>
-              <td>{info.completed ? "Done": "Not yet"}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <form action="" onSubmit={handleForm}>
+        <input type="number" ref={ref} />
+        <button type="submit" className="border bg-gray-300 px-4 py-2.5">
+          {" "}
+          Get Data
+        </button>
+      </form>
+      <div>
+        {error && (
+          <h1 className="mt-3 text-xl">
+            Please enter a valid number (eg.1,2,3...)
+          </h1>
+        )}
+        {task && (
+          <div>
+            <h1 className="mt-3 text-xl">userId - {task.userId}</h1>
+            <h1 className="mt-3 text-xl">id - {task.id}</h1>
+            <h1 className="mt-3 text-xl">userId - {task.title}</h1>
+            <h1 className="mt-3 text-xl">
+              completed - {task.completed ? "Done" : "Not Yet"}
+            </h1>
+          </div>
+        )}
+      </div>
     </section>
   );
 };
